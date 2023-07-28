@@ -2,9 +2,10 @@ import FriendList from "./FriendList"
 import FriendRequests from "./FriendRequests"
 import FriendsNav from "./FriendsNav"
 import { Routes, Route } from "react-router-dom"
-import { useState, useEffect, useContext } from "react"
-import TokenContext from "../context/TokenContext"
+import { useState, useEffect } from "react"
 import{addFriendRequest, deleteFriendRequest, fetchFriends, acceptFriendRequest} from "../serverConections/friends"
+import { emialRegex } from "../utils/regexes"
+import { useToken } from "../utils/customHooks/useToken"
 
 const RequestInformation = ({title, information}) => {
     return(
@@ -37,11 +38,15 @@ const FriendsPage = () => {
     const [pendingRequests, setPendingRequests] = useState([]);
     const [myRequests, setMyRequests] = useState([]);
 
-    const token = useContext(TokenContext);
+    const token = useToken();
 
     const getFriends = async () => {
         try {
             const response = fetchFriends(token);
+
+            console.log(response);
+
+            return;
 
             if(!response.ok){
                 const {message} = await response.json();
@@ -51,14 +56,70 @@ const FriendsPage = () => {
 
             const {friends, myFriendRequests, pendingFriendRequests} = await response.json();
 
+            setFriends(friends);
+            setPendingRequests(pendingFriendRequests);
+            setMyRequests(myFriendRequests);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const acceptFriend = async (requestId) => {
+
+        try {
+            const response = await acceptFriendRequest(token, requestId);
+
+            if(!response.ok){
+                const {message} = await response.json();
+                console.log(message);
+                return;
+            }
+
+            const {message, friendRequest} = await response.json();
+
+            console.log(message);
+
+            setFriends((_friends) => {
+                _friends.push(friendRequest);
+                return _friends;
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
+
+    }
+
+    const deleteFriend = async (requestId,setFunc) => {
+        try {
+            const response = await deleteFriendRequest(token, requestId);
+
+            if(!response.ok){
+                const {message} = await response.json();
+                console.log(message);
+                return;
+            }
+
+            const {message} = await response.json();
+
+            console.log(message);
+
+            setFunc((_friends) => _friends.filter((value) => {
+                return value._id === requestId;
+            }));
+
         } catch (error) {
             console.error(error);
         }
     }
 
     const addFriend = async (email) => {
+        
+        if(!email.test(emialRegex));
+        
         try {
-            const response = await addFriendRequest(email);
+            const response = await addFriendRequest(email, token);
 
             if(!response.ok){
                 const {message} = await response.json();
@@ -67,6 +128,11 @@ const FriendsPage = () => {
             }
 
             const {friendRequest} = await response.json();
+
+            setMyRequests((_friends) => {
+                _friends.push(friendRequest);
+                return _friends;
+            });
 
         } catch (error) {
             console.error(error);   

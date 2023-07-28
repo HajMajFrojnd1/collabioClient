@@ -1,11 +1,11 @@
-import { useContext, useState, useEffect } from "react";
-import TokenContext from "../context/TokenContext";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import BackgroundImage from "./BackgroundImage";
 import CurrentProjects from "./CurrentProjects";
+import { useToken } from "../utils/customHooks/useToken";
 
 const Home = () => {
-	const token = useContext(TokenContext);
+	const token = useToken();
 
 	if (token !== null) {
 		return (

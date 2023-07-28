@@ -1,10 +1,10 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { validateRegistration } from "../utils/validation";
 import { signUp } from "../serverConections/auth";
 import { useNavigate } from "react-router-dom";
-import TokenContext from "../context/TokenContext";
 import BackgroundImage from "./BackgroundImage";
 import { Link } from "react-router-dom";
+import { useToken } from "../utils/customHooks/useToken";
 
 const RegisterForm = ({setToken}) => {
 
@@ -16,7 +16,7 @@ const RegisterForm = ({setToken}) => {
     const [errorMessages, setErrorMessages] = useState([]);
     const [success, setSuccess] = useState(false);
 
-    const token = useContext(TokenContext);
+    const token = useToken();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {

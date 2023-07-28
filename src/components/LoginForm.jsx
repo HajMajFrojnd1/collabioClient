@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect } from "react"
 import { validateLogin } from "../utils/validation";
 import { login } from "../serverConections/auth";
 import { Link, useNavigate } from "react-router-dom";
-import TokenContext from "../context/TokenContext";
 import BackgroundImage from "./BackgroundImage";
+import { useToken } from "../utils/customHooks/useToken";
 
 const LoginForm = ({setToken}) => {
 
@@ -14,7 +14,7 @@ const LoginForm = ({setToken}) => {
 
     const navigate = useNavigate();
 
-    const token = useContext(TokenContext);
+    const token = useToken();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
