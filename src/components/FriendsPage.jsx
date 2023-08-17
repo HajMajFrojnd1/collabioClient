@@ -37,16 +37,13 @@ const FriendsPage = () => {
     const [friends, setFriends] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [myRequests, setMyRequests] = useState([]);
+    const [requestLengths, setRequestLengths] = useState([myRequests.length, pendingRequests.length, friends.length]);
 
     const token = useToken();
 
     const getFriends = async () => {
         try {
-            const response = fetchFriends(token);
-
-            console.log(response);
-
-            return;
+            const response = await fetchFriends(token);
 
             if(!response.ok){
                 const {message} = await response.json();
@@ -66,7 +63,6 @@ const FriendsPage = () => {
     }
 
     const acceptFriend = async (requestId) => {
-
         try {
             const response = await acceptFriendRequest(token, requestId);
 
@@ -78,21 +74,23 @@ const FriendsPage = () => {
 
             const {message, friendRequest} = await response.json();
 
-            console.log(message);
-
             setFriends((_friends) => {
                 _friends.push(friendRequest);
                 return _friends;
             });
 
+            setPendingRequests((request) =>  request.filter((value) => {
+                return value._id !== requestId;
+            }));
+
         } catch (error) {
             console.error(error);
         }
-
     }
 
-    const deleteFriend = async (requestId,setFunc) => {
+    const deleteFriend = async (requestId, setFunc) => {
         try {
+            console.log(requestId);
             const response = await deleteFriendRequest(token, requestId);
 
             if(!response.ok){
@@ -105,8 +103,8 @@ const FriendsPage = () => {
 
             console.log(message);
 
-            setFunc((_friends) => _friends.filter((value) => {
-                return value._id === requestId;
+            setFunc((_friends) =>  _friends.filter((value) => {
+                return value._id !== requestId;
             }));
 
         } catch (error) {
@@ -115,16 +113,18 @@ const FriendsPage = () => {
     }
 
     const addFriend = async (email) => {
-        
-        if(!email.test(emialRegex));
+        console.log(email);
+        if(!email.match(emialRegex)){
+            return ["Wrong email address frormat"];
+        }
         
         try {
-            const response = await addFriendRequest(email, token);
+            const response = await addFriendRequest(token, email);
 
             if(!response.ok){
                 const {message} = await response.json();
                 console.log(message);
-                return;
+                return [message];
             }
 
             const {friendRequest} = await response.json();
@@ -134,10 +134,21 @@ const FriendsPage = () => {
                 return _friends;
             });
 
+            return [];
         } catch (error) {
             console.error(error);   
+            return [error];
         }
     }
+
+    useEffect(() => {
+        setRequestLengths([
+            myRequests.length,
+            pendingRequests.length,
+            friends.length
+        ]);
+    }, [myRequests, pendingRequests, friends])
+    
 
     useEffect(() => {
         getFriends();
@@ -154,22 +165,32 @@ const FriendsPage = () => {
                         "Pending Requests",
                         "Friends"
                     ]}
-                    informations={[
-                        myRequests.length,
-                        pendingRequests.length,
-                        friends.length
-                    ]}
+                    informations={requestLengths}
                 />
                 <Routes>
                     <Route
                         path=""
-                        element={<FriendList/>}
+                        element={
+                            <FriendList
+                                friends={friends}
+                                handleDelete={deleteFriend}
+                                setFunc={setFriends}
+                            />
+                        }
                     />
                     <Route
                         path="friendRequests"
-                        element={<FriendRequests
-                            
-                        />}
+                        element={
+                            <FriendRequests
+                                addFriend={addFriend}
+                                friendRequests={myRequests}
+                                pendingFriendRequests={pendingRequests}
+                                setMyRequests={setMyRequests}
+                                setPendingRequests={setPendingRequests}
+                                deleteFriend={deleteFriend}
+                                acceptFriend={acceptFriend}
+                            />
+                        }
                     />
                 </Routes>
             </div>

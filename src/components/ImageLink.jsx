@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 
-const ImageLink = ({className, imageSize, imageUrl, imageAlt, to, linkText = null}) => {
+const ImageLink = ({className, imageSize, imageUrl, imageAlt, to, linkText = null, state = null}) => {
 
     const sizes = "w-" + imageSize + " h-" + imageSize;
 
@@ -9,6 +9,7 @@ const ImageLink = ({className, imageSize, imageUrl, imageAlt, to, linkText = nul
         <Link 
             className={className}
             to={to}
+            state={state}
         >
             {linkText && 
                 <span>{linkText}</span>

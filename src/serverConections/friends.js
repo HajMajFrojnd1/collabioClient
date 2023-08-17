@@ -1,19 +1,17 @@
-const fetchUrl = "http://localhost:4001/friends";
-
+const fetchUrl = "http://localhost:4001/friends/";
 
 const fetchFriends = (token) => {
     return fetch(
-        fetchUrl + "",
+        fetchUrl,
         {
             method: "POST",
             mode: "cors",
             headers:{
                 'Content-Type': 'application/json'
             },
-            credentials: 'include',
-            body: {
+            body: JSON.stringify({
                 token: token
-            }
+            })
         }
     );
 }
@@ -29,10 +27,10 @@ const deleteFriendRequest = (token, requestId) => {
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: {
+            body: JSON.stringify({
                 requestId: requestId,
                 token: token
-            }
+            })
         }
     );
 }
@@ -47,10 +45,10 @@ const acceptFriendRequest = (token, requestId) => {
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: {
+            body: JSON.stringify({
                 requestId: requestId,
                 token: token
-            }
+            })
         }
     );
 }
@@ -65,12 +63,29 @@ const addFriendRequest = (token, email) => {
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: {
-                email: email,
+            body: JSON.stringify({
+                userEmail: email,
                 token: token
-            }
+            })
         }
     );
 }
 
-export {addFriendRequest, deleteFriendRequest, fetchFriends, acceptFriendRequest};
+const fetchFriendsOnly = (projectId, token) => {
+    return fetch(
+        fetchUrl + "friendsOnly",
+        {
+            method: "POST",
+            mode: "cors",
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: token,
+                projectId: projectId
+            })
+        }
+    );
+}
+
+export {addFriendRequest, deleteFriendRequest, fetchFriends, acceptFriendRequest, fetchFriendsOnly};

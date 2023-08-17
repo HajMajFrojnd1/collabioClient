@@ -18,15 +18,18 @@ function App() {
 	const  [interval, setIntervalState] = useState(0);
 	const navigate = useNavigate();
 
+	const updateIntervalState = (interval, state) => {
+		clearInterval(interval);
+		setIntervalState(state);
+	}
+
 	useEffect(() => {
 
 		if(JWT !== null){
 			console.log("Setting interval state");
-			clearInterval(interval);
-			setIntervalState(refreshTokenInterval(setJWT));
+			updateIntervalState(interval, refreshTokenInterval(setJWT));
 		}else{
-			clearInterval(interval);
-			setIntervalState(0);
+			updateIntervalState(0);
 			navigate("/");
 		}
 
@@ -34,6 +37,10 @@ function App() {
 
 	useEffect(() => {
 		refreshTokenTry(setJWT);
+
+		return () => {
+				clearInterval(interval);
+		}
 	},[]);
 
     return (
