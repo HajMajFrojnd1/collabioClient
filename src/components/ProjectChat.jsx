@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react"
 import { registerChatEvents } from "../sockets/projectSocketEvents";
+import chatMessageTypes from "../enums/chatMessageTypes";
 
 const Message = ({message}) => {
 
-    if (message.type === "connect" || message.type === "disconnect") {
+    if (message.type === chatMessageTypes.connect || message.type === chatMessageTypes.disconnect) {
         return (
-            <span className="text-sm opacity-75">
-                {message.user.fullName}
+            <span className="text-sm opacity-75 w-full text-center">
+                {`${message.user.fullName} ${message.type === chatMessageTypes.connect? "connected" : "disconnected"}`}
             </span>
         )
     }
 
-    if (message.type === "message"){
+    if (message.type === chatMessageTypes.message){
         return(
             <div className="flex items-start w-full flex-col">
                 <div className="flex items-center gap-x-2 mb-1 opacity-75">
@@ -53,27 +54,31 @@ const ChatInput = ({updateChatMessage}) => {
     const [text, setText] = useState("");
 
     return(
-        <div className="flex gap-x-2 w-full">
+        <form 
+            className="flex gap-x-2 w-full"
+            onSubmit={(e)=>{
+                e.preventDefault();
+                setText("");
+                updateChatMessage(text);
+            }}
+        >
             <input 
                 className="w-full rounded-md border-orange border-2 bg-main px-2"
                 type="text"
                 value={text}
                 onChange={(e) => {setText(e.target.value)}}
             />
-            <div 
+            <button 
+                type="submit"
                 className="cursor-pointer flex items-center justify-center rounded-md border-orange border-2 bg-main p-2"
-                onClick={()=>{
-                    setText("");
-                    updateChatMessage(text);
-                }}
             >
                 <img 
                     className="h-4 w-4"
                     src="/icons/paper-plane-solid.svg" 
                     alt="Send message icon"
                 />
-            </div>
-        </div>
+            </button>
+        </form>
     );
 };
 
@@ -103,25 +108,10 @@ const ChatWindow = ({isConnected, chatMessages, updateChatMessage}) => {
     )
 }
 
-const ProjectChat = ({isConnected, socket}) => {
+const ProjectChat = ({isConnected, chatMessages, updateChatMessage}) => {
 
     const [isOpened, setIsOpened] = useState(false);
-    const [chatMessages, setChatMessages] = useState([]);
-
-    const updateChatMessage = (message) => {
-        setChatMessages((chatMessages) => [...chatMessages,message]);
-    }
-
-    const updateChatOthers = (message) => {
-        socket.emit("chatMessage", message);
-        setChatMessages((chatMessages) => [...chatMessages,message]);
-    }
-
-    useEffect(() => {
-        if(socket){
-            registerChatEvents(socket, updateChatMessage);
-        }
-    }, [socket]);
+    
 
   return (
       <>
@@ -139,7 +129,7 @@ const ProjectChat = ({isConnected, socket}) => {
                 <ChatWindow
                     isConnected={isConnected}
                     chatMessages={chatMessages}
-                    updateChatMessage={updateChatOthers}
+                    updateChatMessage={updateChatMessage}
                 />
               </div>
               :

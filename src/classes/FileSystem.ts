@@ -14,6 +14,7 @@ class FileObject {
     }
 
     static createFileObjects(paths: String[], level: number = 1): FileObject[] | null{
+        console.log(paths);
         let splitPaths = paths.map(path => {
             return path.split('/');
         });

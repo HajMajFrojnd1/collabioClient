@@ -232,36 +232,17 @@ const FileTreeManipulator = ({addFolder, addFile, remove, currentPath, fileStruc
     );
 }
 
-const FileTree = ({project}) => {
+const FileTree = ({fileTree, setFileStructure}) => {
 
     const [currentPath, setCurrentPath] = useState("");
     const [fileName, setfileName] = useState(null);
-
-    const [fileStructure, setFileStructure] = useState([
-        "project",
-        "project/s.txt",
-        "project/karel",
-        "project/karel/s.txt",
-        "project/karel/t.txt",
-        "project/karel/marek",
-        "project/barel",
-        "karel",
-        "karel/s.txt",
-        "karel/t.txt",
-        "karel/marek",
-        "karel/marek/marek.txt",
-        "marek.txt"
-    ]);
     
     const projectFileStructure = useMemo(() => {
-        return FileObject.createFileObjects(fileStructure);
-    }, [fileStructure]);
+        return FileObject.createFileObjects(fileTree);
+    }, [fileTree]);
 
+    //ref used to higlight currently selected folder or file
     const ref = useRef(null);
-
-    const updateFileStructure = (fullPath) => {
-        setFileStructure((fs) => [...fs, fullPath]);
-    }
 
     const updateCurrentPath = (path) => {
         if (path.includes(".")){
@@ -275,18 +256,22 @@ const FileTree = ({project}) => {
     }
 
     const addFile = (path, name) => {
-        const full = path === "" ? name : path + "/" + name;
+        const fullName = path === "" ? name : path + "/" + name;
         if (!name.includes(".")) return {message: "File must include extension", ok: false};
-        if (fileStructure.includes(full)) return {message: "File already exists", ok: false};
-        updateFileStructure(full);
+        if (fileTree.includes(fullName)) return {message: "File already exists", ok: false};
+        setFileStructure(fullName, "file");
         return {ok: true};
     }
 
     const addFolder = (path, name) => {
-        const full = path === "" ? name : path + "/" + name;
-        if (fileStructure.includes(full)) return {message: "Folder already exists", ok: false};
-        updateFileStructure(full);
+        const fullName = path === "" ? name : path + "/" + name;
+        if (fileTree.includes(fullName)) return {message: "Folder already exists", ok: false};
+        setFileStructure(fullName, "directory");
         return {ok: true};
+    }
+
+    const remove = (path) => {
+
     }
 
     return (
@@ -306,8 +291,9 @@ const FileTree = ({project}) => {
                     <FileTreeManipulator
                         addFile={addFile}
                         addFolder={addFolder}
+                        remove={remove}
                         currentPath={currentPath}
-                        fileStructure={fileStructure}
+                        fileStructure={fileTree}
                     />
                 }
             >
