@@ -6,6 +6,8 @@ import { forwardRef } from "react";
 import DarkModal from "./DarkModal";
 import TwoButtonModal from "./TwoButtonModal";
 import VerticalFormInput from "./VerticalFormInput";
+import FileObjectType from "../enums/fileObjectType";
+
 
 const fileDirWrapper = (fd, ref, setCurrentPath) => {
 
@@ -226,6 +228,55 @@ const FileTreeManipulator = ({addFolder, addFile, remove, currentPath, fileStruc
                             }
                         </TwoButtonModal>
                     }
+                    {currentModal === "remove" &&
+                        <TwoButtonModal
+                            onClickOne={() => {
+                                setCurrentModal("removeCancel");
+                            }}
+                            onClickTwo={() => {
+                                setVisible(false); 
+                            }}
+                            textOne={"Remove Item"}
+                            textTwo={"Cancel"}
+                        >
+                            <VerticalFormInput
+                                name={"Remove Item"}
+                                placeholder={"Remove Item"}
+                                options={fileStructure}
+                                value={path}
+                                setValue={setPath}
+                            />
+                            {errorMessage &&
+                                <span className="text-error text-base">
+                                    {errorMessage}
+                                </span>
+                            }
+                        </TwoButtonModal>
+                    }
+                    {currentModal === "removeCancel" &&
+                        <TwoButtonModal
+                            onClickOne={() => {
+                                const ret = remove(path);
+                                if(!ret.ok){
+                                    setErrorMessage(ret.message);
+                                }else{
+                                    setErrorMessage(null);
+                                    setVisible(false); 
+                                }
+                            }}
+                            onClickTwo={() => {
+                                setCurrentModal("remove"); 
+                            }}
+                            textOne={"Confirm"}
+                            textTwo={"Return"}
+                        >
+                            {path.includes(".") ?
+                                    <span className="text-error text-xl font-large font-bold">Are you sure you want to delete file: <u>{path}</u></span>
+                                :
+                                    <span className="text-error text-xl font-large font-bold">You are about to delete folder: <u>{path}</u> and everything that is inside that folder</span>
+                            }
+                        </TwoButtonModal>
+                    }
                 </DarkModal>
             }
         </div>
@@ -259,19 +310,20 @@ const FileTree = ({fileTree, setFileStructure}) => {
         const fullName = path === "" ? name : path + "/" + name;
         if (!name.includes(".")) return {message: "File must include extension", ok: false};
         if (fileTree.includes(fullName)) return {message: "File already exists", ok: false};
-        setFileStructure(fullName, "file");
+        setFileStructure(fullName, FileObjectType.file);
         return {ok: true};
     }
 
     const addFolder = (path, name) => {
         const fullName = path === "" ? name : path + "/" + name;
         if (fileTree.includes(fullName)) return {message: "Folder already exists", ok: false};
-        setFileStructure(fullName, "directory");
+        setFileStructure(fullName, FileObjectType.directory);
         return {ok: true};
     }
 
     const remove = (path) => {
-
+        setFileStructure(path, FileObjectType.remove);
+        return {ok: true};
     }
 
     return (

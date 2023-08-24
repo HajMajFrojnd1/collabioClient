@@ -1,31 +1,6 @@
 import { Socket, io } from "socket.io-client";
+import {MySocket, basicSocketPath, defaultSettings} from "./MySocket";
 import chatMessageTypes from "../enums/chatMessageTypes";
-
-const basicSocketPath: string = "http://localhost:4001/socket";
-const defaultSettings = {
-    port: 4001,
-    transports: ['websocket'],
-};
-
-class MySocket {
-
-    protected socket: Socket;
-
-    constructor(socket: Socket){
-        this.socket = socket;
-        this.socket.on("connect_error", (e) => {
-            console.log(e);
-        });
-    };
-
-    static createSocket(path: string): MySocket {
-        return new ProjectSocket(io(`${basicSocketPath}/${path}`, defaultSettings));
-    }
-
-    public getSocket(): Socket{
-        return this.socket;
-    };
-}
 
 class ProjectSocket extends MySocket{
 
@@ -86,10 +61,6 @@ class ProjectSocket extends MySocket{
         this.socket.off("fileTreeChanged");
     }
 
-    public disconnect(): void{
-        this.socket.removeAllListeners();
-        this.socket.disconnect();
-    };
 }
 
 export {ProjectSocket};

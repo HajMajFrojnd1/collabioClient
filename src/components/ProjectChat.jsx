@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react"
-import { registerChatEvents } from "../sockets/projectSocketEvents";
+import {  useState } from "react"
 import chatMessageTypes from "../enums/chatMessageTypes";
 
 const Message = ({message}) => {

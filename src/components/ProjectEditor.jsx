@@ -5,10 +5,12 @@ import FileTree from "./FileTree";
 import ProjectChat from "./ProjectChat";
 import { useToken } from "../utils/customHooks/useToken";
 import { ProjectSocket } from "../classes/ProjectSocket";
+import Editor from "./Editor";
 
 const ProjectEditor = () => {
 
 	const location = useLocation();
+	const token = useToken();
 	const { projectId } = useParams();
 	const [project, setProject] = useState(location.state?.project);
 	
@@ -19,11 +21,12 @@ const ProjectEditor = () => {
 	
 	const [fileTree, setfileTree] = useState([]);
 	
-	const token = useToken();
+	const [fileName, setFileName] = useState(null);
+	const [file, setFile] = useState(null);
 
 	const setFileStructure = useCallback((path, type) => {
 		setfileTree((fileTree) => [...fileTree, path]);
-		socket.emit("fileTreeAdd", {
+		socket.emit("fileTree", {
 			path: path, 
 			type: type
 		});
@@ -57,6 +60,9 @@ const ProjectEditor = () => {
 				<FileTree
 					fileTree={fileTree}
 					setFileStructure={setFileStructure}
+				/>
+				<Editor
+
 				/>
 			</div>
 			<ProjectChat
