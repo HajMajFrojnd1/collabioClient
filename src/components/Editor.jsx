@@ -7,6 +7,7 @@ const Editor = ({fileName}) => {
     <div className="flex flex-col gap-y-4 flex-1 justify-stretch">
         <span></span>
         <CodeMirror
+            className='h-full'
             value="console.log('hello world!');"
             height="100%"
             theme={tokyoNight}
